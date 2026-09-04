@@ -129,18 +129,14 @@ func (s *Selection) AddClass(class ...string) *Selection {
 // HasClass determines whether any of the matched elements are assigned the
 // given class.
 func (s *Selection) HasClass(class string) bool {
-	rawClass := class
-	class = " " + class + " "
+	rawClass := " " + class + " "
 	for _, n := range s.Nodes {
 		if n.Type != html.ElementNode {
 			continue
 		}
 		if attr := getAttributePtr("class", n); attr != nil {
-			if !strings.Contains(attr.Val, rawClass) {
-				continue
-			}
-			val := classTrimReplacer.Replace(attr.Val)
-			if strings.Contains(" "+val+" ", class) {
+			val := classTrimReplacer.Replace(" " + attr.Val + " ")
+			if strings.Contains(val, rawClass) {
 				return true
 			}
 		}
