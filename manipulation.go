@@ -1,6 +1,7 @@
 package goquery
 
 import (
+	"slices"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -618,11 +619,11 @@ func (s *Selection) manipulateNodes(ns []*html.Node, reverse bool,
 
 	// net.Html doesn't provide document fragments for insertion, so to get
 	// things in the correct order with After() and Prepend(), the callback
-	// needs to be called on the reverse of the nodes.
+	// needs to be called on the reverse of the nodes. Clone the slice before
+	// reversing so the caller's slice is not modified.
 	if reverse {
-		for i, j := 0, len(ns)-1; i < j; i, j = i+1, j-1 {
-			ns[i], ns[j] = ns[j], ns[i]
-		}
+		ns = slices.Clone(ns)
+		slices.Reverse(ns)
 	}
 
 	for i, sn := range s.Nodes {
