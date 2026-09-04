@@ -88,15 +88,15 @@ func (s *Selection) Has(selector string) *Selection {
 func (s *Selection) HasMatcher(m Matcher) *Selection {
 	result := make([]*html.Node, 0, len(s.Nodes))
 
-	// Manually create a singleMatcher (rather than using SingleMatcher, which
-	// returns a Matcher interface) so we can call its MatchFirst method
-	// directly. MatchFirst probes for the first match in a subtree without
+	// A direct child can itself satisfy the matcher, so the child must be
+	// tested with Match in addition to its subtree being probed with
+	// MatchFirst. MatchFirst probes a subtree for the first match without
 	// building a result slice, avoiding a throwaway one-element slice
 	// allocation for every matching child subtree.
 	sm := singleMatcher{m}
 	for _, n := range s.Nodes {
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if c.Type == html.ElementNode && sm.MatchFirst(c) != nil {
+			if c.Type == html.ElementNode && (m.Match(c) || sm.MatchFirst(c) != nil) {
 				result = append(result, n)
 				break
 			}
